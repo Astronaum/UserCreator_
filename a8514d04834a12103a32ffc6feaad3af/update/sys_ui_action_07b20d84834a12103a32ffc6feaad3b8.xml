@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_ui_action">
+    <sys_ui_action action="INSERT_OR_UPDATE">
+        <action_name/>
+        <active>true</active>
+        <client>true</client>
+        <client_script_v2><![CDATA[function onClick(g_form) {
+
+}]]></client_script_v2>
+        <comments/>
+        <condition/>
+        <form_action>true</form_action>
+        <form_button>true</form_button>
+        <form_button_v2>false</form_button_v2>
+        <form_context_menu>false</form_context_menu>
+        <form_link>false</form_link>
+        <form_menu_button_v2>false</form_menu_button_v2>
+        <form_style/>
+        <format_for_configurable_workspace>false</format_for_configurable_workspace>
+        <hint/>
+        <isolate_script>false</isolate_script>
+        <list_action>false</list_action>
+        <list_banner_button>false</list_banner_button>
+        <list_button>false</list_button>
+        <list_choice>false</list_choice>
+        <list_context_menu>false</list_context_menu>
+        <list_link>false</list_link>
+        <list_save_with_form_button>false</list_save_with_form_button>
+        <list_style/>
+        <messages/>
+        <name>Create User</name>
+        <onclick>fetch()</onclick>
+        <order>1</order>
+        <script><![CDATA[function fetch() {
+    if (typeof g_form !== 'undefined') {
+    var username = g_form.getValue('username');
+    var displayname = g_form.getValue('displayname');
+    var email = g_form.getValue('email');
+
+    // Display the values in an alert to verify they're being read correctly
+    alert("Username: " + username + "\nDisplay Name: " + displayname + "\nEmail: " + email);
+
+    if (!username || !displayname || !email) {
+        alert("Please fill in all fields.");
+        return false; // Prevents proceeding to server-side script
+    }
+
+    // Add a confirmation dialog for the user
+    var proceed = confirm("Do you want to create this user?");
+    if (!proceed) {
+        return false; // Prevents proceeding to server-side script
+    }
+
+    // Add parameters for server-side execution (this is a test and won't execute server-side)
+    g_scratchpad.username = username;
+    g_scratchpad.displayname = displayname;
+    g_scratchpad.email = email;
+
+    // Continue to server-side script (would return true in real use)
+    return true;
+}
+}
+
+(function executeRule(current, g_scratchpad) {
+    try {
+        // Retrieve form values from g_scratchpad
+        var username = g_scratchpad.username;
+        var displayname = g_scratchpad.displayname;
+        var email = g_scratchpad.email;
+
+        // Prepare the SCIM API payload
+        var payload = {
+            schemas: ["urn:ietf:params:scim:schemas:core:2.0:User"],
+            userName: username,
+            displayName: displayname,
+            active: true,
+            emails: [
+                {
+                    value: email,
+                    type: "work",
+                    primary: true
+                }
+            ]
+        };
+
+        // Configure the RESTMessageV2 object
+        var restMessage = new sn_ws.RESTMessageV2();
+        restMessage.setEndpoint('https://earth-apis.my.evidian.com/scim/v2/api/Users');
+        restMessage.setHttpMethod('POST');
+        restMessage.setRequestHeader('Content-Type', 'application/json');
+
+        // Add token to the Authorization header
+        var token = "Bearer YOUR_ACCESS_TOKEN"; // Replace with your actual token
+        restMessage.setRequestHeader('Authorization', token);
+
+        restMessage.setRequestBody(JSON.stringify(payload));
+
+        // Execute the REST call
+        var response = restMessage.execute();
+        var responseBody = response.getBody();
+        var httpStatus = response.getStatusCode();
+
+        // Log the result or show a message
+        if (httpStatus === 201 || httpStatus === 200) {
+            gs.addInfoMessage("User created successfully!");
+        } else {
+            gs.addErrorMessage("Failed to create user. HTTP Status: " + httpStatus + ". Response: " + responseBody);
+        }
+    } catch (e) {
+        gs.addErrorMessage("Error creating user: " + e.message);
+        gs.error("Error creating user: " + e.message);
+    }
+})(current, g_scratchpad);
+]]></script>
+        <show_insert>true</show_insert>
+        <show_multiple_update>false</show_multiple_update>
+        <show_query>false</show_query>
+        <show_update>true</show_update>
+        <sys_class_name>sys_ui_action</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:40:16</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>07b20d84834a12103a32ffc6feaad3b8</sys_id>
+        <sys_mod_count>14</sys_mod_count>
+        <sys_name>Create User</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="UserCreator1.2" source="x_1539348_usercre">a8514d04834a12103a32ffc6feaad3af</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="UserCreator1.2">a8514d04834a12103a32ffc6feaad3af</sys_scope>
+        <sys_update_name>sys_ui_action_07b20d84834a12103a32ffc6feaad3b8</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 17:57:14</sys_updated_on>
+        <table>x_1539348_usercre_user_requests</table>
+        <ui11_compatible>true</ui11_compatible>
+        <ui16_compatible>false</ui16_compatible>
+    </sys_ui_action>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>07b20d84834a12103a32ffc6feaad3b8</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:40:16</sys_created_on>
+        <sys_id>f1b3cd44834a12103a32ffc6feaad323</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 16:40:01</sys_updated_on>
+        <table>sys_ui_action</table>
+        <use_es_latest>false</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

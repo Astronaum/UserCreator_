@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_1539348_usercre.UserCreationHelper</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>UserCreationHelper</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var UserCreationHelper = Class.create();
+UserCreationHelper.prototype = {
+    initialize: function() {},
+    
+    createUser: function(username, displayname, email) {
+        // Prepare the payload for the Scripted REST API
+        var payload = {
+            "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+            "userName": username,
+            "displayName": displayname,
+            "active": true,
+            "emails": [
+                {
+                    "value": email,
+                    "type": "work",
+                    "primary": true
+                }
+            ]
+        };
+        
+        // Create a RESTMessageV2 instance to call the Scripted REST API
+        var restMessage = new sn_ws.RESTMessageV2();
+        restMessage.setHttpMethod('POST');
+        restMessage.setEndpoint('https://earth-apis.my.evidian.com/scim/v2/api/Users');
+        restMessage.setRequestHeader('Content-Type', 'application/json');
+        restMessage.setRequestHeader('Authorization', 'Bearer eyJraWQiOiJyc2EyNTZfc2lnIiwiYWxnIjoiUlMyNTYifQ.eyJhdXRoZW50aWNhdGlvbmxldmVsIjoiMTAiLCJzdWIiOiJld29pYzNWaUlpQTZJQ0poZVcxaGJtVXVhMkZpWW1GQVZYTmxjaUJFYVhKbFkzUnZjbmtpTEFvaWJtRnRaU0lnT2lBaVFYbHRZVzVsSUV0QlFrSkJJaXdLSW1kcGRtVnVYMjVoYldVaUlEb2dJa0Y1YldGdVpTSXNDaUptWVcxcGJIbGZibUZ0WlNJZ09pQWlTMEZDUWtFaUxBb2laVzFoYVd3aUlEb2dJbUY1YldGdVpTNXJZV0ppWVVCbGRtbGtaVzR1WTI5dElpd0tJbXh2WTJGc1pTSWdPaUFpWlc0aUxBb2ljSEpsWm1WeWNtVmtYM1Z6WlhKdVlXMWxJaUE2SUNKaGVXMWhibVV1YTJGaVltRWlMQW9pWjJWdVpHVnlJaUE2SUNKdFlXeGxJaXdLSW1selgyOXBaR05mWVdSdGFXNXBjM1J5WVhSdmNpSWdPaUJtWVd4elpRcDkiLCJhdXRoZW50aWNhdGlvbnBvbGljeW5hbWUiOiJBdXRoZW50aWNhdGlvbiB3aXRoIGNlcnRpZmljYXRlIiwiYXpwIjoiNTMxZGQ2YTUtMzcxYi00NjczLTgxYjMtNDMyYjcwNzEzNTY2Iiwic2NvcGUiOiJhZGRyZXNzIHBob25lIG9wZW5pZCBwcm9maWxlIGVtYWlsIiwiaXNzIjoiaHR0cHM6XC9cL2VhcnRoLWF1dGgubXkuZXZpZGlhbi5jb21cL2Nob2ljZVwvb2lkY1wvIiwiYXV0aGVudGljYXRpb250eXBlbmFtZSI6IkxQRl9QUklNX0FVVEhfQ0VSVElGSUNBVEUiLCJhdXRoZW50aWNhdGlvbnR5cGUiOiIzIiwiaWF0IjoxNzMxOTMzNTYxLCJqdGkiOiI5MGE2OWYwYS0zMzNiLTQ0YmQtYTY4NS1mYTQ2ODJjZjFkY2QifQ.pt39E49E7BqSKxKQ7v-bblrJHsNHxIbZJ0QMl_QqOqW5pcC47z-WH4dvUTzTnqiMQk7C7fhcAcqWp9XU26UIHHPPuxzDuUQiaszqrfjOTR6gL7PHcEqBuUaSjK8Z3bc7pYaJ1v_yuKczsUXn-it2TRsMZ-LhR_8K2oG4Y4u1kmygfF5dR8iFZbvIZ1eoD_O859uOrRGYCcixW1YlWzLV5_czZZheuCDLmsoiJAICppbE5qcObamqFUKSyQhYuJQLISp-7Sogyw21Nji3g43jGNJ9i1LovTOx3g0bQ7FPWvF1P9nixfMVFsUIF6vclAvZ5gTT_8a4Ck3GMNWn4o_mYQ'); // Use the correct OAuth token
+        
+        restMessage.setRequestBody(JSON.stringify(payload));
+        
+        // Execute the REST request
+        var restResponse = restMessage.execute();
+        var responseBody = restResponse.getBody();
+        var httpStatus = restResponse.getStatusCode();
+        
+        // Return response based on the status
+        if (httpStatus == 201) {
+            return JSON.stringify({
+                status: 'success',
+                message: 'User created successfully.'
+            });
+        } else {
+            return JSON.stringify({
+                status: 'error',
+                message: 'Failed to create user: ' + responseBody
+            });
+        }
+    },
+    
+    type: 'UserCreationHelper'
+};
+]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:41:32</sys_created_on>
+        <sys_id>efc38108834a12103a32ffc6feaad381</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>UserCreationHelper</sys_name>
+        <sys_package display_value="UserCreator1.2" source="x_1539348_usercre">a8514d04834a12103a32ffc6feaad3af</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="UserCreator1.2">a8514d04834a12103a32ffc6feaad3af</sys_scope>
+        <sys_update_name>sys_script_include_efc38108834a12103a32ffc6feaad381</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 15:41:32</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>efc38108834a12103a32ffc6feaad381</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:41:32</sys_created_on>
+        <sys_id>58048108834a12103a32ffc6feaad386</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 15:41:32</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>
