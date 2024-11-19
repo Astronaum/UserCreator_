@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="DELETE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>POST</http_method>
+        <name>create_user</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    // Get user data from the request body (form submission)
+    var userData = request.body.data; // Assumes JSON body is sent in the request
+
+    // Create a new REST message
+    var restMessage = new sn_ws.RESTMessageV2();
+    restMessage.setHttpMethod('POST');
+    restMessage.setEndpoint('https://earth-apis.my.evidian.com/scim/v2/api/Users');
+    
+    // Set necessary request headers
+    restMessage.setRequestHeader('Content-Type', 'application/json');
+    restMessage.setRequestHeader('Authorization', 'Bearer eyJraWQiOiJyc2EyNTZfc2lnIiwiYWxnIjoiUlMyNTYifQ.eyJhdXRoZW50aWNhdGlvbmxldmVsIjoiMTAiLCJzdWIiOiJld29pYzNWaUlpQTZJQ0poZVcxaGJtVXVhMkZpWW1GQVZYTmxjaUJFYVhKbFkzUnZjbmtpTEFvaWJtRnRaU0lnT2lBaVFYbHRZVzVsSUV0QlFrSkJJaXdLSW1kcGRtVnVYMjVoYldVaUlEb2dJa0Y1YldGdVpTSXNDaUptWVcxcGJIbGZibUZ0WlNJZ09pQWlTMEZDUWtFaUxBb2laVzFoYVd3aUlEb2dJbUY1YldGdVpTNXJZV0ppWVVCbGRtbGtaVzR1WTI5dElpd0tJbXh2WTJGc1pTSWdPaUFpWlc0aUxBb2ljSEpsWm1WeWNtVmtYM1Z6WlhKdVlXMWxJaUE2SUNKaGVXMWhibVV1YTJGaVltRWlMQW9pWjJWdVpHVnlJaUE2SUNKdFlXeGxJaXdLSW1selgyOXBaR05mWVdSdGFXNXBjM1J5WVhSdmNpSWdPaUJtWVd4elpRcDkiLCJhdXRoZW50aWNhdGlvbnBvbGljeW5hbWUiOiJBdXRoZW50aWNhdGlvbiB3aXRoIGNlcnRpZmljYXRlIiwiYXpwIjoiNTMxZGQ2YTUtMzcxYi00NjczLTgxYjMtNDMyYjcwNzEzNTY2Iiwic2NvcGUiOiJhZGRyZXNzIHBob25lIG9wZW5pZCBwcm9maWxlIGVtYWlsIiwiaXNzIjoiaHR0cHM6XC9cL2VhcnRoLWF1dGgubXkuZXZpZGlhbi5jb21cL2Nob2ljZVwvb2lkY1wvIiwiYXV0aGVudGljYXRpb250eXBlbmFtZSI6IkxQRl9QUklNX0FVVEhfQ0VSVElGSUNBVEUiLCJhdXRoZW50aWNhdGlvbnR5cGUiOiIzIiwiaWF0IjoxNzMxOTMzNTYxLCJqdGkiOiI5MGE2OWYwYS0zMzNiLTQ0YmQtYTY4NS1mYTQ2ODJjZjFkY2QifQ.pt39E49E7BqSKxKQ7v-bblrJHsNHxIbZJ0QMl_QqOqW5pcC47z-WH4dvUTzTnqiMQk7C7fhcAcqWp9XU26UIHHPPuxzDuUQiaszqrfjOTR6gL7PHcEqBuUaSjK8Z3bc7pYaJ1v_yuKczsUXn-it2TRsMZ-LhR_8K2oG4Y4u1kmygfF5dR8iFZbvIZ1eoD_O859uOrRGYCcixW1YlWzLV5_czZZheuCDLmsoiJAICppbE5qcObamqFUKSyQhYuJQLISp-7Sogyw21Nji3g43jGNJ9i1LovTOx3g0bQ7FPWvF1P9nixfMVFsUIF6vclAvZ5gTT_8a4Ck3GMNWn4o_mYQ'); // Replace with your actual token
+
+    // Construct the payload as per SCIM API requirements
+    var payload = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+        "userName": userData.username, // User's username from form
+        "displayName": userData.displayname, // User's display name from form
+        "active": true, // Set active as true (can be adjusted if needed)
+        "emails": [
+            {
+                "value": userData.email, // User's email from form
+                "type": "work", // You can adjust the type based on the context
+                "primary": true // Mark the email as primary
+            }
+        ]
+    };
+
+    // Set the request body with the JSON payload
+    restMessage.setRequestBody(JSON.stringify(payload));
+
+    // Execute the REST request
+    var restResponse = restMessage.execute();
+    var responseBody = restResponse.getBody();
+    var httpStatus = restResponse.getStatusCode();
+
+    // Handle the response based on status code
+    if (httpStatus == 201) {
+        // Successfully created the user
+        var responseJSON = JSON.parse(responseBody);
+        // Optionally, process or store the response data as needed
+        response.setStatus(201);
+        response.setBody(JSON.stringify({status: 'success', message: 'User created successfully.', userId: responseJSON.id}));
+    } else {
+        // Something went wrong
+        var errorResponse = {
+            "status": "error",
+            "message": responseBody
+        };
+        response.setStatus(httpStatus);
+        response.setBody(JSON.stringify(errorResponse));
+    }
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_1539348_usercre/user_creation_api/create_user</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/create_user</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description/>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:35:38</sys_created_on>
+        <sys_id>6f224184834a12103a32ffc6feaad32a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>create_user</sys_name>
+        <sys_package display_value="UserCreator1.2" source="x_1539348_usercre">a8514d04834a12103a32ffc6feaad3af</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="UserCreator1.2">a8514d04834a12103a32ffc6feaad3af</sys_scope>
+        <sys_update_name>sys_ws_operation_6f224184834a12103a32ffc6feaad32a</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 15:35:38</sys_updated_on>
+        <web_service_definition display_value="User Creation API">fe128d44834a12103a32ffc6feaad3ef</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+    <sys_es_latest_script action="DELETE">
+        <id>6f224184834a12103a32ffc6feaad32a</id>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:35:38</sys_created_on>
+        <sys_id>bda2c184834a12103a32ffc6feaad335</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 15:35:38</sys_updated_on>
+        <table>sys_ws_operation</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="UserCreator1.2">a8514d04834a12103a32ffc6feaad3af</application>
+        <file_path/>
+        <instance_id>8e49fcdd1b8e0a5078c7cb7b234bcbde</instance_id>
+        <instance_name>dev264800</instance_name>
+        <name>sys_ws_operation_6f224184834a12103a32ffc6feaad32a</name>
+        <payload>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;record_update table="sys_ws_operation"&gt;&lt;sys_ws_operation action="INSERT_OR_UPDATE"&gt;&lt;active&gt;true&lt;/active&gt;&lt;consumes&gt;application/json,application/xml,text/xml&lt;/consumes&gt;&lt;consumes_customized&gt;false&lt;/consumes_customized&gt;&lt;default_operation_uri/&gt;&lt;enforce_acl&gt;cf9d01d3e73003009d6247e603f6a990&lt;/enforce_acl&gt;&lt;http_method&gt;POST&lt;/http_method&gt;&lt;name&gt;create_user&lt;/name&gt;&lt;operation_script&gt;&lt;![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    // Get user data from the request body (form submission)
+    var userData = request.body.data; // Assumes JSON body is sent in the request
+
+    // Create a new REST message
+    var restMessage = new sn_ws.RESTMessageV2();
+    restMessage.setHttpMethod('POST');
+    restMessage.setEndpoint('https://earth-apis.my.evidian.com/scim/v2/api/Users');
+    
+    // Set necessary request headers
+    restMessage.setRequestHeader('Content-Type', 'application/json');
+    restMessage.setRequestHeader('Authorization', 'Bearer eyJraWQiOiJyc2EyNTZfc2lnIiwiYWxnIjoiUlMyNTYifQ.eyJhdXRoZW50aWNhdGlvbmxldmVsIjoiMTAiLCJzdWIiOiJld29pYzNWaUlpQTZJQ0poZVcxaGJtVXVhMkZpWW1GQVZYTmxjaUJFYVhKbFkzUnZjbmtpTEFvaWJtRnRaU0lnT2lBaVFYbHRZVzVsSUV0QlFrSkJJaXdLSW1kcGRtVnVYMjVoYldVaUlEb2dJa0Y1YldGdVpTSXNDaUptWVcxcGJIbGZibUZ0WlNJZ09pQWlTMEZDUWtFaUxBb2laVzFoYVd3aUlEb2dJbUY1YldGdVpTNXJZV0ppWVVCbGRtbGtaVzR1WTI5dElpd0tJbXh2WTJGc1pTSWdPaUFpWlc0aUxBb2ljSEpsWm1WeWNtVmtYM1Z6WlhKdVlXMWxJaUE2SUNKaGVXMWhibVV1YTJGaVltRWlMQW9pWjJWdVpHVnlJaUE2SUNKdFlXeGxJaXdLSW1selgyOXBaR05mWVdSdGFXNXBjM1J5WVhSdmNpSWdPaUJtWVd4elpRcDkiLCJhdXRoZW50aWNhdGlvbnBvbGljeW5hbWUiOiJBdXRoZW50aWNhdGlvbiB3aXRoIGNlcnRpZmljYXRlIiwiYXpwIjoiNTMxZGQ2YTUtMzcxYi00NjczLTgxYjMtNDMyYjcwNzEzNTY2Iiwic2NvcGUiOiJhZGRyZXNzIHBob25lIG9wZW5pZCBwcm9maWxlIGVtYWlsIiwiaXNzIjoiaHR0cHM6XC9cL2VhcnRoLWF1dGgubXkuZXZpZGlhbi5jb21cL2Nob2ljZVwvb2lkY1wvIiwiYXV0aGVudGljYXRpb250eXBlbmFtZSI6IkxQRl9QUklNX0FVVEhfQ0VSVElGSUNBVEUiLCJhdXRoZW50aWNhdGlvbnR5cGUiOiIzIiwiaWF0IjoxNzMxOTMzNTYxLCJqdGkiOiI5MGE2OWYwYS0zMzNiLTQ0YmQtYTY4NS1mYTQ2ODJjZjFkY2QifQ.pt39E49E7BqSKxKQ7v-bblrJHsNHxIbZJ0QMl_QqOqW5pcC47z-WH4dvUTzTnqiMQk7C7fhcAcqWp9XU26UIHHPPuxzDuUQiaszqrfjOTR6gL7PHcEqBuUaSjK8Z3bc7pYaJ1v_yuKczsUXn-it2TRsMZ-LhR_8K2oG4Y4u1kmygfF5dR8iFZbvIZ1eoD_O859uOrRGYCcixW1YlWzLV5_czZZheuCDLmsoiJAICppbE5qcObamqFUKSyQhYuJQLISp-7Sogyw21Nji3g43jGNJ9i1LovTOx3g0bQ7FPWvF1P9nixfMVFsUIF6vclAvZ5gTT_8a4Ck3GMNWn4o_mYQ'); // Replace with your actual token
+
+    // Construct the payload as per SCIM API requirements
+    var payload = {
+        "schemas": ["urn:ietf:params:scim:schemas:core:2.0:User"],
+        "userName": userData.username, // User's username from form
+        "displayName": userData.displayname, // User's display name from form
+        "active": true, // Set active as true (can be adjusted if needed)
+        "emails": [
+            {
+                "value": userData.email, // User's email from form
+                "type": "work", // You can adjust the type based on the context
+                "primary": true // Mark the email as primary
+            }
+        ]
+    };
+
+    // Set the request body with the JSON payload
+    restMessage.setRequestBody(JSON.stringify(payload));
+
+    // Execute the REST request
+    var restResponse = restMessage.execute();
+    var responseBody = restResponse.getBody();
+    var httpStatus = restResponse.getStatusCode();
+
+    // Handle the response based on status code
+    if (httpStatus == 201) {
+        // Successfully created the user
+        var responseJSON = JSON.parse(responseBody);
+        // Optionally, process or store the response data as needed
+        response.setStatus(201);
+        response.setBody(JSON.stringify({status: 'success', message: 'User created successfully.', userId: responseJSON.id}));
+    } else {
+        // Something went wrong
+        var errorResponse = {
+            "status": "error",
+            "message": responseBody
+        };
+        response.setStatus(httpStatus);
+        response.setBody(JSON.stringify(errorResponse));
+    }
+})(request, response);]]&gt;&lt;/operation_script&gt;&lt;operation_uri&gt;/api/x_1539348_usercre/user_creation_api/create_user&lt;/operation_uri&gt;&lt;produces&gt;application/json,application/xml,text/xml&lt;/produces&gt;&lt;produces_customized&gt;false&lt;/produces_customized&gt;&lt;relative_path&gt;/create_user&lt;/relative_path&gt;&lt;request_example/&gt;&lt;requires_acl_authorization&gt;true&lt;/requires_acl_authorization&gt;&lt;requires_authentication&gt;true&lt;/requires_authentication&gt;&lt;requires_snc_internal_role&gt;true&lt;/requires_snc_internal_role&gt;&lt;short_description/&gt;&lt;sys_class_name&gt;sys_ws_operation&lt;/sys_class_name&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2024-11-18 15:35:38&lt;/sys_created_on&gt;&lt;sys_id&gt;6f224184834a12103a32ffc6feaad32a&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_name&gt;create_user&lt;/sys_name&gt;&lt;sys_package display_value="UserCreator1.2" source="x_1539348_usercre"&gt;a8514d04834a12103a32ffc6feaad3af&lt;/sys_package&gt;&lt;sys_policy/&gt;&lt;sys_scope display_value="UserCreator1.2"&gt;a8514d04834a12103a32ffc6feaad3af&lt;/sys_scope&gt;&lt;sys_update_name&gt;sys_ws_operation_6f224184834a12103a32ffc6feaad32a&lt;/sys_update_name&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2024-11-18 15:35:38&lt;/sys_updated_on&gt;&lt;web_service_definition display_value="User Creation API"&gt;fe128d44834a12103a32ffc6feaad3ef&lt;/web_service_definition&gt;&lt;web_service_version/&gt;&lt;/sys_ws_operation&gt;&lt;sys_es_latest_script action="INSERT_OR_UPDATE"&gt;&lt;id&gt;6f224184834a12103a32ffc6feaad32a&lt;/id&gt;&lt;sys_created_by&gt;admin&lt;/sys_created_by&gt;&lt;sys_created_on&gt;2024-11-18 15:35:38&lt;/sys_created_on&gt;&lt;sys_id&gt;bda2c184834a12103a32ffc6feaad335&lt;/sys_id&gt;&lt;sys_mod_count&gt;0&lt;/sys_mod_count&gt;&lt;sys_updated_by&gt;admin&lt;/sys_updated_by&gt;&lt;sys_updated_on&gt;2024-11-18 15:35:38&lt;/sys_updated_on&gt;&lt;table&gt;sys_ws_operation&lt;/table&gt;&lt;use_es_latest&gt;true&lt;/use_es_latest&gt;&lt;/sys_es_latest_script&gt;&lt;/record_update&gt;</payload>
+        <payload_hash>-1990708192</payload_hash>
+        <record_name>create_user</record_name>
+        <reverted_from/>
+        <source>68514d04834a12103a32ffc6feaad3b4</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-18 15:35:38</sys_created_on>
+        <sys_id>0ea2c184834a12103a32ffc6feaad346</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>1933fea47ac0000001</sys_recorded_at>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-18 15:35:38</sys_updated_on>
+        <type>Scripted REST Resource</type>
+        <update_guid>02a2c184984a12101f038b180b5a6146</update_guid>
+        <update_guid_history>02a2c184984a12101f038b180b5a6146:-1990708192</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2024-11-19 09:24:45</sys_created_on>
+        <sys_db_object display_value="" name="sys_ws_operation">sys_ws_operation</sys_db_object>
+        <sys_id>3e4dceda81d548e88038c3415cd0a240</sys_id>
+        <sys_metadata>6f224184834a12103a32ffc6feaad32a</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>create_user</sys_name>
+        <sys_package display_value="UserCreator1.2" source="x_1539348_usercre">a8514d04834a12103a32ffc6feaad3af</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="UserCreator1.2">a8514d04834a12103a32ffc6feaad3af</sys_scope>
+        <sys_scope_delete display_value="">1d45265abc5e4d3f8d203efba863ef79</sys_scope_delete>
+        <sys_update_name>sys_ws_operation_6f224184834a12103a32ffc6feaad32a</sys_update_name>
+        <sys_update_version display_value="sys_ws_operation_6f224184834a12103a32ffc6feaad32a">0ea2c184834a12103a32ffc6feaad346</sys_update_version>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2024-11-19 09:24:45</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>
